@@ -23,6 +23,7 @@ class ReportingSeeder extends Seeder
         $member = User::where('email', 'leon@noldomain.test')->first();
         $challenge = Challenge::first();
         $article = Article::first();
+        $additionalChallenges = Challenge::latest()->take(3)->get();
 
         if ($admin && $challenge) {
             UserActivity::updateOrCreate(
@@ -81,30 +82,58 @@ class ReportingSeeder extends Seeder
             );
         }
 
-        Community::all()->each(function (Community $community) {
-            CommunityStatistic::updateOrCreate(
-                [
-                    'community_id' => $community->id,
-                    'period_start' => Carbon::now()->startOfQuarter()->toDateString(),
-                    'period_end' => Carbon::now()->endOfQuarter()->toDateString(),
-                ],
-                [
-                    'total_members' => $community->total_members,
-                    'active_members' => (int) round($community->total_members * 0.72),
-                    'total_points' => $community->total_points,
-                    'total_emission_kg_co2' => $community->total_emission_reduced,
-                    'average_monthly_emission_kg_co2' => $community->total_emission_reduced / 3,
-                    'challenge_participants_count' => 125,
-                    'active_challenges_count' => 4,
-                    'metadata' => [
-                        'top_initiatives' => [
-                            'Eco bricks',
-                            'Smart mobility',
-                        ],
+        if ($admin && $challenge) {
+            foreach ($additionalChallenges as $index => $adminChallenge) {
+                UserActivity::updateOrCreate(
+                    [
+                        'user_id' => $admin->id,
+                        'activity_type' => 'challenge_updated',
+                        'subject_type' => Challenge::class,
+                        'subject_id' => $adminChallenge->id,
                     ],
-                ]
-            );
+                    [
+                        'description' => 'Memperbarui detail tantangan #' . ($index + 1),
+                        'performed_by' => $admin->id,
+                        'occurred_at' => Carbon::now()->subHours(rand(6, 48)),
+                        'metadata' => [
+                            'status' => $adminChallenge->status,
+                        ],
+                    ]
+                );
+            }
+        }
+
+        $periods = [
+            [Carbon::now()->startOfQuarter(), Carbon::now()->endOfQuarter()],
+            [Carbon::now()->subQuarter()->startOfQuarter(), Carbon::now()->subQuarter()->endOfQuarter()],
+        ];
+
+        Community::all()->each(function (Community $community) use ($periods) {
+            foreach ($periods as [$start, $end]) {
+                CommunityStatistic::updateOrCreate(
+                    [
+                        'community_id' => $community->id,
+                        'period_start' => $start->toDateString(),
+                        'period_end' => $end->toDateString(),
+                    ],
+                    [
+                        'total_members' => $community->total_members,
+                        'active_members' => (int) round($community->total_members * (0.6 + rand(0, 15) / 100)),
+                        'total_points' => $community->total_points - rand(0, 8000),
+                        'total_emission_kg_co2' => $community->total_emission_reduced - rand(0, 200),
+                        'average_monthly_emission_kg_co2' => max(1, ($community->total_emission_reduced / 3) - rand(0, 50)),
+                        'challenge_participants_count' => rand(80, 180),
+                        'active_challenges_count' => rand(2, 7),
+                        'metadata' => [
+                            'top_initiatives' => [
+                                'Eco bricks',
+                                'Smart mobility',
+                                'Urban farming',
+                            ],
+                        ],
+                    ]
+                );
+            }
         });
     }
 }
-

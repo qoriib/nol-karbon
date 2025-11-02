@@ -14,11 +14,24 @@ class CommunitySeeder extends Seeder
      */
     public function run(): void
     {
-        $users = User::whereIn('email', [
+        $baseUsers = [
             'miguel@noldomain.test',
             'dania@noldomain.test',
             'leon@noldomain.test',
-        ])->get()->keyBy('email');
+            'siti.admin@noldomain.test',
+            'budi.admin@noldomain.test',
+            'alya.contributor@noldomain.test',
+            'rangga.contributor@noldomain.test',
+            'dewi.contributor@noldomain.test',
+            'rizki.user@noldomain.test',
+            'citra.user@noldomain.test',
+            'mutia.user@noldomain.test',
+            'raka.user@noldomain.test',
+            'nadia.user@noldomain.test',
+            'tegar.user@noldomain.test',
+        ];
+
+        $users = User::whereIn('email', $baseUsers)->get()->keyBy('email');
 
         $communities = [
             [
@@ -46,6 +59,32 @@ class CommunitySeeder extends Seeder
                 'total_members' => 290,
                 'total_points' => 90000,
                 'total_emission_reduced' => 1987.35,
+            ],
+            [
+                'name' => 'Universitas Gadjah Mada',
+                'slug' => 'universitas-gadjah-mada',
+                'type' => 'university',
+                'tagline' => 'Sustainable Jogja Movement',
+                'description' => 'Kolaborasi mahasiswa lintas fakultas untuk pengelolaan energi dan limbah kampus.',
+                'city' => 'Yogyakarta',
+                'province' => 'DI Yogyakarta',
+                'created_by' => $users['siti.admin@noldomain.test']->id ?? null,
+                'total_members' => 310,
+                'total_points' => 83000,
+                'total_emission_reduced' => 1760.42,
+            ],
+            [
+                'name' => 'Eco Warriors Community',
+                'slug' => 'eco-warriors-community',
+                'type' => 'community',
+                'tagline' => 'Youth for Clean Air',
+                'description' => 'Komunitas pelajar yang fokus pada kampanye emisi rendah melalui edukasi dan aksi rutin.',
+                'city' => 'Jakarta',
+                'province' => 'DKI Jakarta',
+                'created_by' => $users['alya.contributor@noldomain.test']->id ?? null,
+                'total_members' => 180,
+                'total_points' => 62000,
+                'total_emission_reduced' => 1254.88,
             ],
         ];
 
