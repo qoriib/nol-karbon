@@ -2,13 +2,91 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\Challenge;
+use App\Models\Community;
+use App\Models\EmissionCard;
+use App\Models\EmissionRecord;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class ChallengeAdminController extends Controller
 {
+    public function dashboard(): View
+    {
+        $startOfMonth = Carbon::now()->startOfMonth();
+
+        $totalUsers = User::count();
+        $newUsers = User::where('created_at', '>=', $startOfMonth)->count();
+
+        $activeCommunities = Community::where('status', 'active')->count();
+        $newCommunities = Community::where('status', 'active')
+            ->where('created_at', '>=', $startOfMonth)
+            ->count();
+
+        $activeChallenges = Challenge::where('status', 'active')->count();
+        $newActiveChallenges = Challenge::where('status', 'active')
+            ->where('created_at', '>=', $startOfMonth)
+            ->count();
+
+        $totalReduction = (float) EmissionRecord::sum('reduction_kg_co2');
+        $reductionThisMonth = (float) EmissionRecord::whereDate('recorded_for', '>=', $startOfMonth)
+            ->sum('reduction_kg_co2');
+
+        $overview = [
+            [
+                'label' => 'TOTAL USERS',
+                'value' => number_format($totalUsers),
+                'subtitle' => 'Pengguna terdaftar Nol Karbon.',
+                'icon' => 'fa-solid fa-users',
+                'delta' => $this->formatDeltaLabel($newUsers, 'NEW USERS'),
+            ],
+            [
+                'label' => 'ACTIVE COMMUNITIES',
+                'value' => number_format($activeCommunities),
+                'subtitle' => 'Komunitas kampus & organisasi mitra aktif.',
+                'icon' => 'fa-solid fa-building-columns',
+                'delta' => $this->formatDeltaLabel($newCommunities, 'NEW COMMUNITIES'),
+            ],
+            [
+                'label' => 'LIVE CHALLENGES',
+                'value' => number_format($activeChallenges),
+                'subtitle' => 'Tantangan lingkungan yang sedang berjalan.',
+                'icon' => 'fa-solid fa-bullhorn',
+                'delta' => $this->formatDeltaLabel($newActiveChallenges, 'NEW CHALLENGES'),
+            ],
+            [
+                'label' => 'TOTAL CO₂ CUT',
+                'value' => number_format($totalReduction, 1) . ' kg',
+                'subtitle' => 'Akumulasi reduksi karbon terlapor.',
+                'icon' => 'fa-solid fa-leaf',
+                'delta' => $this->formatDeltaLabel($reductionThisMonth, 'KG THIS MONTH'),
+            ],
+        ];
+
+        $totalEmissionCards = EmissionCard::count();
+
+        $draftStats = [
+            'submitted' => Article::count(),
+            'unreviewed' => Article::whereIn('status', ['draft', 'pending_review'])->count(),
+            'approved' => Article::where('status', 'published')->count(),
+        ];
+
+        $emissionTrend = $this->buildEmissionTrend();
+
+        return view('admin.dashboard', [
+            'overview' => $overview,
+            'totalEmissionCards' => $totalEmissionCards,
+            'draftStats' => $draftStats,
+            'emissionTrend' => $emissionTrend,
+        ]);
+    }
+
     public function index(Request $request)
     {
         $status = $request->string('status')->trim();
@@ -117,6 +195,38 @@ class ChallengeAdminController extends Controller
         return redirect()
             ->route('admin.challenges.index')
             ->with('status', 'Tantangan berhasil dihapus.');
+    }
+
+    private function formatDeltaLabel(float $value, string $suffix): string
+    {
+        if ($value <= 0) {
+            return 'STABLE';
+        }
+
+        $decimals = fmod($value, 1.0) > 0 ? 1 : 0;
+
+        return strtoupper(sprintf('+%s %s', number_format($value, $decimals), $suffix));
+    }
+
+    private function buildEmissionTrend(): Collection
+    {
+        return EmissionRecord::selectRaw('DATE_FORMAT(recorded_for, "%Y-%m-01") as period')
+            ->selectRaw('DATE_FORMAT(recorded_for, "%b %Y") as label')
+            ->selectRaw('SUM(emission_kg_co2) as total_emission')
+            ->selectRaw('SUM(reduction_kg_co2) as total_reduction')
+            ->groupBy('period', 'label')
+            ->orderBy('period', 'desc')
+            ->limit(6)
+            ->get()
+            ->sortBy('period')
+            ->map(function ($row) {
+                return (object) [
+                    'month' => $row->label,
+                    'total_emission' => (float) $row->total_emission,
+                    'total_reduction' => (float) $row->total_reduction,
+                ];
+            })
+            ->values();
     }
 
     private function validateChallenge(Request $request, ?int $challengeId = null): array

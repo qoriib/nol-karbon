@@ -15,27 +15,9 @@
             $navLinks = [
                 [
                     'label' => 'Dashboard',
-                    'route' => null,
-                    'pattern' => null,
+                    'route' => 'admin.dashboard',
+                    'pattern' => 'admin.dashboard',
                     'icon' => 'fa-solid fa-chart-pie',
-                ],
-                [
-                    'label' => 'User Management',
-                    'route' => null,
-                    'pattern' => null,
-                    'icon' => 'fa-solid fa-users',
-                ],
-                [
-                    'label' => 'Communities',
-                    'route' => null,
-                    'pattern' => null,
-                    'icon' => 'fa-solid fa-building-columns',
-                ],
-                [
-                    'label' => 'Review Draft',
-                    'route' => null,
-                    'pattern' => null,
-                    'icon' => 'fa-solid fa-file-pen',
                 ],
                 [
                     'label' => 'Challenges',
@@ -45,15 +27,9 @@
                 ],
                 [
                     'label' => 'Reports',
-                    'route' => null,
-                    'pattern' => null,
+                    'route' => 'admin.reports.index',
+                    'pattern' => 'admin.reports',
                     'icon' => 'fa-solid fa-chart-line',
-                ],
-                [
-                    'label' => 'Emission Card',
-                    'route' => null,
-                    'pattern' => null,
-                    'icon' => 'fa-solid fa-id-card',
                 ],
             ];
         @endphp
@@ -76,19 +52,11 @@
                                 $pattern = $link['pattern'] ?? $link['route'];
                                 $isActive = $link['route'] && ($current === $link['route'] || ($pattern && str_starts_with($current, $pattern)));
                             @endphp
-                            @if ($link['route'])
-                                <a href="{{ route($link['route']) }}"
-                                   class="flex items-center gap-3 rounded-xl px-4 py-3 transition {{ $isActive ? 'bg-[#0b2db5] text-white shadow-lg' : 'hover:bg-white/10' }}">
-                                    <i class="{{ $link['icon'] }} text-base"></i>
-                                    <span>{{ $link['label'] }}</span>
-                                </a>
-                            @else
-                                <div class="flex items-center gap-3 rounded-xl px-4 py-3 opacity-50">
-                                    <i class="{{ $link['icon'] }} text-base"></i>
-                                    <span>{{ $link['label'] }}</span>
-                                    <span class="ml-auto rounded-full bg-white/20 px-3 py-1 text-[10px] uppercase tracking-[0.3em]">Soon</span>
-                                </div>
-                            @endif
+                            <a href="{{ route($link['route']) }}"
+                               class="flex items-center gap-3 rounded-xl px-4 py-3 transition {{ $isActive ? 'bg-[#0b2db5] text-white shadow-lg' : 'hover:bg-white/10' }}">
+                                <i class="{{ $link['icon'] }} text-base"></i>
+                                <span>{{ $link['label'] }}</span>
+                            </a>
                         @endforeach
                     </nav>
                 </div>

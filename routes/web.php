@@ -2,11 +2,15 @@
 
 use App\Http\Controllers\ChallengeAdminController;
 use App\Http\Controllers\ChallengeUserController;
+use App\Http\Controllers\LeaderboardController;
+use App\Http\Controllers\ReportAdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('landing');
 });
+
+Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
 
 Route::prefix('challenges')->name('challenges.')->group(function () {
     Route::get('/', [ChallengeUserController::class, 'index'])->name('index');
@@ -24,5 +28,8 @@ Route::prefix('challenges')->name('challenges.')->group(function () {
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [ChallengeAdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/reports', [ReportAdminController::class, 'index'])->name('reports.index');
+    Route::get('/reports/activities', [ReportAdminController::class, 'activities'])->name('reports.activities');
     Route::resource('challenges', ChallengeAdminController::class);
 });
