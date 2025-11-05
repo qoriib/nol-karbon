@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChallengeAdminController;
 use App\Http\Controllers\ChallengeUserController;
+use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\ReportAdminController;
 use Illuminate\Support\Facades\Route;
@@ -11,12 +12,12 @@ Route::get('/', function () {
 });
 
 Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
+Route::get('/communities/dashboard', [CommunityController::class, 'dashboard'])->name('communities.dashboard');
 
 Route::prefix('challenges')->name('challenges.')->group(function () {
     Route::get('/', [ChallengeUserController::class, 'index'])->name('index');
     Route::get('/dashboard', [ChallengeUserController::class, 'dashboard'])->name('dashboard');
     Route::get('/dashboard/badges', [ChallengeUserController::class, 'badges'])->name('badges');
-    Route::get('/leaderboard', [ChallengeUserController::class, 'leaderboard'])->name('leaderboard');
 
     Route::get('/{challenge}/join', [ChallengeUserController::class, 'joinForm'])->name('join');
     Route::post('/{challenge}/join', [ChallengeUserController::class, 'join'])->name('join.store');

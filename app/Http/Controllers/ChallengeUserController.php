@@ -300,34 +300,4 @@ class ChallengeUserController extends Controller
         ]);
     }
 
-    public function leaderboard(Request $request): View
-    {
-        $challengeId = $request->integer('challenge_id');
-
-        $participantsQuery = ChallengeParticipant::query()
-            ->with(['user:id,name,avatar_path', 'challenge:id,title,slug'])
-            ->whereHas('challenge', fn ($query) => $query->whereIn('status', ['active', 'completed']))
-            ->orderByDesc('points_earned')
-            ->orderByDesc('last_reported_at');
-
-        if ($challengeId) {
-            $participantsQuery->where('challenge_id', $challengeId);
-        }
-
-        $participants = $participantsQuery
-            ->limit(10)
-            ->get();
-
-        $challenges = Challenge::query()
-            ->select('id', 'title')
-            ->whereIn('status', ['active', 'completed'])
-            ->orderBy('title')
-            ->get();
-
-        return view('challenges.leaderboard', [
-            'participants' => $participants,
-            'challenges' => $challenges,
-            'activeChallengeId' => $challengeId,
-        ]);
-    }
 }

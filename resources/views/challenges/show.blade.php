@@ -3,7 +3,7 @@
     use Illuminate\Support\Facades\Storage;
 @endphp
 
-@extends('layouts.challenge')
+@extends('layouts.app')
 
 @section('title', $challenge->title . ' | Nol Karbon Challenge')
 

@@ -3,16 +3,15 @@
     use Illuminate\Support\Facades\Storage;
 @endphp
 
-@extends('layouts.challenge')
+@extends('layouts.app')
 
 @section('title', 'Challenge Nol Karbon')
 
-@section('top-nav')
+@section('subnav')
     <nav class="hidden items-center gap-4 rounded-full border border-blue-200 bg-white px-6 py-2 text-xs font-semibold text-blue-800 shadow md:flex">
         <a href="{{ route('challenges.index') }}" class="rounded-full px-3 py-1 {{ request()->routeIs('challenges.index') ? 'bg-blue-700 text-white shadow' : '' }}">Challenge</a>
         <a href="{{ route('challenges.dashboard') }}" class="rounded-full px-3 py-1 {{ request()->routeIs('challenges.dashboard') ? 'bg-blue-700 text-white shadow' : '' }}">Dashboard</a>
         <a href="{{ route('challenges.badges') }}" class="rounded-full px-3 py-1 {{ request()->routeIs('challenges.badges') ? 'bg-blue-700 text-white shadow' : '' }}">Badge</a>
-        <a href="{{ route('challenges.leaderboard') }}" class="rounded-full px-3 py-1 {{ request()->routeIs('challenges.leaderboard') ? 'bg-blue-700 text-white shadow' : '' }}">Leaderboard</a>
     </nav>
 @endsection
 

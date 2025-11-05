@@ -105,9 +105,9 @@
                 </div>
 
                 <div class="flex items-center justify-between">
-                    <a href="{{ route('challenges.leaderboard') }}"
+                    <a href="{{ route('leaderboard.index') }}"
                        class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-5 py-3 text-sm font-semibold text-blue-700 hover:bg-blue-200">
-                        <i class="fa-solid fa-ranking-star"></i> Leaderboard Challenge
+                        <i class="fa-solid fa-ranking-star"></i> Leaderboard Kampus
                     </a>
                     {{ $challenges->links() }}
                 </div>

@@ -1,4 +1,4 @@
-@extends('layouts.challenge')
+@extends('layouts.app')
 
 @section('title', 'Badge & Level Nol Karbon')
 
