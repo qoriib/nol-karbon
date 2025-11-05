@@ -17,7 +17,28 @@
                     'label' => 'Dashboard',
                     'route' => 'admin.dashboard',
                     'pattern' => 'admin.dashboard',
-                    'icon' => 'fa-solid fa-chart-pie',
+                    'icon' => 'fa-solid fa-grip',
+                ],
+                [
+                    'label' => 'User Management',
+                    'route' => null,
+                    'url' => '#',
+                    'pattern' => 'admin.users.',
+                    'icon' => 'fa-solid fa-user-group',
+                ],
+                [
+                    'label' => 'Communities',
+                    'route' => null,
+                    'url' => '#',
+                    'pattern' => 'admin.communities.',
+                    'icon' => 'fa-solid fa-city',
+                ],
+                [
+                    'label' => 'Content',
+                    'route' => null,
+                    'url' => '#',
+                    'pattern' => 'admin.content.',
+                    'icon' => 'fa-solid fa-file-lines',
                 ],
                 [
                     'label' => 'Challenges',
@@ -30,6 +51,13 @@
                     'route' => 'admin.reports.index',
                     'pattern' => 'admin.reports',
                     'icon' => 'fa-solid fa-chart-line',
+                ],
+                [
+                    'label' => 'Emission Card',
+                    'route' => null,
+                    'url' => '#',
+                    'pattern' => 'admin.emission-cards.',
+                    'icon' => 'fa-solid fa-id-card',
                 ],
             ];
         @endphp
@@ -49,10 +77,18 @@
                         @foreach ($navLinks as $link)
                             @php
                                 $current = Route::currentRouteName() ?? '';
-                                $pattern = $link['pattern'] ?? $link['route'];
-                                $isActive = $link['route'] && ($current === $link['route'] || ($pattern && str_starts_with($current, $pattern)));
+                                $pattern = $link['pattern'] ?? ($link['route'] ?? '');
+                                $isActive = false;
+
+                                if ($link['route']) {
+                                    $isActive = $current === $link['route'] || ($pattern && str_starts_with($current, $pattern));
+                                } elseif ($pattern) {
+                                    $isActive = str_starts_with($current, $pattern);
+                                }
+
+                                $href = $link['route'] ? route($link['route']) : ($link['url'] ?? '#');
                             @endphp
-                            <a href="{{ route($link['route']) }}"
+                            <a href="{{ $href }}"
                                class="flex items-center gap-3 rounded-xl px-4 py-3 transition {{ $isActive ? 'bg-[#0b2db5] text-white shadow-lg' : 'hover:bg-white/10' }}">
                                 <i class="{{ $link['icon'] }} text-base"></i>
                                 <span>{{ $link['label'] }}</span>
